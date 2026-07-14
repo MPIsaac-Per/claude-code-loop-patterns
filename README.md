@@ -1,8 +1,13 @@
-# claude-code-loop-patterns
+# Claude Code loop patterns
+
+[![CI](https://github.com/MPIsaac-Per/claude-code-loop-patterns/actions/workflows/ci.yml/badge.svg)](https://github.com/MPIsaac-Per/claude-code-loop-patterns/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/MPIsaac-Per/claude-code-loop-patterns/actions/workflows/codeql.yml/badge.svg)](https://github.com/MPIsaac-Per/claude-code-loop-patterns/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/MPIsaac-Per/claude-code-loop-patterns/badge)](https://scorecard.dev/viewer/?uri=github.com/MPIsaac-Per/claude-code-loop-patterns)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Companion code for **What I Learned From 245,306 Claude Code Tool Calls**.
 
-The article's argument: Claude Code is not a chat product with tools attached, it is an operating loop, and the new high-leverage skill is loop design. This repo is a small cookbook of working loop primitives. Drop any folder into your own project as a starting point.
+The article treats Claude Code as an operating loop. This repository provides small, tested primitives for structured command output, test reporting, verification evidence, Stop-hook enforcement, and prompt-cache assembly. Copy a folder into a project or use the implementations as references.
 
 ## Code samples
 
@@ -26,7 +31,7 @@ The [`skills/`](./skills) directory ships three Claude Code skills that codify t
 
 ## Run
 
-Each sample is self-contained. Most use only the Python standard library (3.10+).
+Each runtime sample is self-contained and uses the Python standard library. Development requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 git clone https://github.com/MPIsaac-Per/claude-code-loop-patterns
@@ -34,13 +39,32 @@ cd claude-code-loop-patterns
 python3 01-structured-shell/run_loud.py --tag test pytest -q
 ```
 
-## What is and isn't novel here
+Run the repository checks:
+
+```bash
+uv sync --locked --dev
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest --cov=. --cov-report=term-missing
+```
+
+## Origins and scope
 
 Most of these patterns have prior art. The contribution of this repo is the composition: a small set of primitives that compose into a verifiable, auditable agent loop without any framework.
 
-- **Genuinely novel composition**: the Stop-hook-plus-evidence-file integration in `04-stop-hook` (refusing to allow Stop until a recent verified run exists), and the three-skill loop-discipline set in `skills/` (one skill per failure surface from the article: done, edit, fail).
-- **Reference implementations of known patterns**: `01-structured-shell/run_loud.py` (subprocess wrappers like this exist in many forms; this one specializes the failure envelope for LLM consumption); `02-structured-tests/pytest_jsonl_reporter.py` (`pytest-json-report` is more mature, see that folder's README); `05-prompt-cache/cacheable_prompt.py` (the cache-friendly system prompt pattern is documented in the official Anthropic prompt-caching guide; this is a small convenience wrapper that exposes the TTL knob).
-- **Validated against current docs**: the hook contract (matcher rules, exit codes, `stop_hook_active` reentrancy), the skill frontmatter (`name`, `description`, `when_to_use`, `allowed-tools`), and the `cache_control` shape were taken from the live Claude Code and Anthropic docs at time of writing, not assumed from training data.
+- **Repository-specific composition**: the Stop-hook and evidence-file integration in `04-stop-hook`, plus the three loop-discipline skills under `skills/`.
+- **Reference implementations**: `run_loud.py`, the pytest JSONL reporter, and the prompt-cache builder adapt established patterns to agent loops.
+- **Current contract references**: [Claude Code hooks](https://code.claude.com/docs/en/hooks), [Claude Code skills](https://code.claude.com/docs/en/skills), and [Anthropic prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching).
+
+## Open-source research collection
+
+This repository is one part of Michael Isaac's public agent engineering collection:
+
+- [claude-code-ops-audit](https://github.com/MPIsaac-Per/claude-code-ops-audit), audit methods and DuckDB analysis
+- [agentinfra-examples](https://github.com/MPIsaac-Per/agentinfra-examples), infrastructure and observability examples
+- [mpiv.ai open-source research](https://mpiv.ai/#code), the collection index
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development and contribution instructions and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
 
 ## License
 

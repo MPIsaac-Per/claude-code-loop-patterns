@@ -13,16 +13,51 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+
+TIMESTAMP_RE = re.compile(r"^(?P<timestamp>\d{8}T\d{6})(?:\.\d{6})?Z(?:-\d+)?$")
 
 
 def parse_ts(name: str) -> datetime | None:
-    try:
-        return datetime.strptime(name, "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
-    except ValueError:
+    match = TIMESTAMP_RE.fullmatch(name)
+    if not match:
         return None
+    return datetime.strptime(match.group("timestamp"), "%Y%m%dT%H%M%S").replace(tzinfo=UTC)
+
+
+def check_latest_evidence(
+    evidence_dir: Path,
+    max_age: timedelta,
+    *,
+    now: datetime | None = None,
+) -> tuple[int, str]:
+    if not evidence_dir.is_dir():
+        return 2, f"No evidence directory at {evidence_dir}"
+
+    cutoff = (now or datetime.now(UTC)) - max_age
+    candidates: list[tuple[datetime, Path]] = []
+    for path in evidence_dir.glob("*.json"):
+        ts = parse_ts(path.stem)
+        if ts and ts >= cutoff:
+            candidates.append((ts, path))
+
+    if not candidates:
+        minutes = int(max_age.total_seconds() / 60)
+        return 1, f"No evidence in the last {minutes} min."
+
+    latest_ts, latest = max(candidates, key=lambda candidate: (candidate[0], candidate[1].name))
+    try:
+        record = json.loads(latest.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        return 2, f"Latest evidence at {latest} is unreadable: {exc}"
+
+    if not record.get("ok"):
+        return 1, f"Latest evidence at {latest_ts.isoformat()} reports failure."
+
+    return 0, f"Evidence ok at {latest_ts.isoformat()}."
 
 
 def main() -> int:
@@ -31,35 +66,15 @@ def main() -> int:
     parser.add_argument("--max-age-minutes", type=int, default=30)
     args = parser.parse_args()
 
-    if not args.evidence_dir.is_dir():
-        print(f"No evidence directory at {args.evidence_dir}", file=sys.stderr)
-        return 2
+    if args.max_age_minutes <= 0:
+        parser.error("--max-age-minutes must be greater than zero")
 
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=args.max_age_minutes)
-    candidates: list[tuple[datetime, Path]] = []
-    for path in args.evidence_dir.glob("*.json"):
-        ts = parse_ts(path.stem)
-        if ts and ts >= cutoff:
-            candidates.append((ts, path))
-
-    if not candidates:
-        print(f"No evidence in the last {args.max_age_minutes} min.", file=sys.stderr)
-        return 1
-
-    candidates.sort(reverse=True)
-    latest_ts, latest = candidates[0]
-    try:
-        record = json.loads(latest.read_text())
-    except json.JSONDecodeError as exc:
-        print(f"Latest evidence at {latest} is unreadable: {exc}", file=sys.stderr)
-        return 2
-
-    if not record.get("ok"):
-        print(f"Latest evidence at {latest_ts.isoformat()} reports failure.", file=sys.stderr)
-        return 1
-
-    print(f"Evidence ok at {latest_ts.isoformat()}.")
-    return 0
+    status, message = check_latest_evidence(
+        args.evidence_dir,
+        timedelta(minutes=args.max_age_minutes),
+    )
+    print(message, file=sys.stdout if status == 0 else sys.stderr)
+    return status
 
 
 if __name__ == "__main__":

@@ -10,12 +10,15 @@ python3 run_loud.py --tag test pytest -q
 
 # Machine-readable JSON, for downstream tools
 python3 run_loud.py --tag build --json npm run build
+
+# Bound a command that may hang
+python3 run_loud.py --timeout-seconds 120 --tag test pytest -q
 ```
 
 The exit code of `run_loud.py` matches the wrapped command, so you can drop it into any pipeline that already checks `$?`.
 
 ## Why
 
-The article's first lesson: most "user" rows in a Claude Code transcript are tool-result carriers, not human prompts. Improving those tool results is the highest-leverage thing you can do for a long-running agent.
+Most "user" rows in a Claude Code transcript are tool-result carriers rather than human prompts. Clear tool results give the next loop iteration usable state.
 
 Article references: §1 (the user is not always the user), §5 (errors are the work).

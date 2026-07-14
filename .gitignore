@@ -5,4 +5,7 @@ __pycache__/
 .evidence/
 *.log
 .pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 .DS_Store

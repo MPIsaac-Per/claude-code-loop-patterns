@@ -5,7 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${HOME}/.claude/hooks/no_completion_without_evidence.py"
+            "command": "python3 ${HOME}/.claude/hooks/no_completion_without_evidence.py",
+            "timeout": 10
           }
         ]
       }

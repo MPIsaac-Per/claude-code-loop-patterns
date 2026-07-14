@@ -1,6 +1,6 @@
 # Structured pytest reporter
 
-A tiny pytest plugin that emits one JSON object per test result and a final summary, either to stdout or to a file. Failure records include a short summary, the first file:line citation from the traceback, and the last 12 lines of the failure message.
+A small pytest plugin that emits one JSON object per test result and a final summary, either to stdout or to a file. Failure records include a short summary, the failing phase, the first file:line citation, and the last 12 lines of the failure message. Setup and teardown failures are recorded against the affected test.
 
 ## Use
 
@@ -29,12 +29,12 @@ The output stream is one JSON object per line, plus a final `kind=summary` recor
 
 ## Prior art
 
-This is a deliberately minimal reference, not a replacement for established pytest JSON reporters. For production use, prefer:
+This is a deliberately small reference. Production suites may prefer:
 
 - [`pytest-json-report`](https://github.com/numirias/pytest-json-report): the de facto standard, with a richer schema, hooks for custom metadata, and proper documentation.
 - [`pytest-common-test-report-json`](https://github.com/infopulse/pytest-common-test-report-json): emits the [Common Test Report Format](https://ctrf.io/) JSON schema.
 
-This file is in the repo because (a) it has zero third-party dependencies beyond pytest itself, (b) it fits in one file you can read in a sitting, and (c) the JSONL stream composes naturally with the evidence harness in [`../03-verification-gate/`](../03-verification-gate). For anything beyond that, swap in `pytest-json-report`.
+The plugin has no dependency beyond pytest, fits in one file, and composes with the evidence harness in [`../03-verification-gate/`](../03-verification-gate). Use `pytest-json-report` when you need its broader schema and plugin ecosystem.
 
 ## Why
 

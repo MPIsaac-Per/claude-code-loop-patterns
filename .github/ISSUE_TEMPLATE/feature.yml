@@ -1,0 +1,26 @@
+name: Pattern proposal
+description: Propose a bounded addition or improvement to the collection.
+title: "proposal: "
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Failure mode
+      description: Describe the loop failure or maintenance problem this pattern should address.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed pattern
+      description: Explain the behavior, interface, and evidence that would validate it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Existing tools or prior art
+      description: Link established implementations that contributors should evaluate first.
+    validations:
+      required: true
