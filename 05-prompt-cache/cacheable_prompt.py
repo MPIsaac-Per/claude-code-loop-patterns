@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import textwrap
 from dataclasses import dataclass
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -23,23 +24,26 @@ class CacheablePrompt:
     """A two-part prompt: a stable cacheable prefix and a dynamic suffix.
 
     The prefix is marked with `cache_control` so the provider can serve it
-    from cache on subsequent turns. Note that the prefix only actually caches
-    if it meets the model's minimum token threshold (roughly 4,096 tokens for
-    Opus 4.7, 2,048 for Sonnet 4.6, 1,024 for earlier models). Marking a
-    short prefix with cache_control is a no-op, not an error: the response
-    will show cache_creation_input_tokens=0 and cache_read_input_tokens=0.
+    from cache on subsequent turns. Minimum cacheable sizes vary by model;
+    consult the provider's current model table before relying on cache hits.
     """
 
     cacheable_prefix: str
     dynamic_suffix: str = ""
-    ttl: str | None = None  # None = default 5min ephemeral cache. "1h" = extended cache.
+    ttl: Literal["1h"] | None = None
 
-    def to_system_blocks(self) -> list[dict]:
-        cache_control: dict = {"type": "ephemeral"}
+    def __post_init__(self) -> None:
+        if not self.cacheable_prefix.strip():
+            raise ValueError("cacheable_prefix must not be empty")
+        if self.ttl not in (None, "1h"):
+            raise ValueError("ttl must be None or '1h'")
+
+    def to_system_blocks(self) -> list[dict[str, object]]:
+        cache_control: dict[str, str] = {"type": "ephemeral"}
         if self.ttl:
             cache_control["ttl"] = self.ttl
 
-        blocks: list[dict] = [
+        blocks: list[dict[str, object]] = [
             {
                 "type": "text",
                 "text": self.cacheable_prefix,
@@ -94,6 +98,11 @@ def estimate_cache_savings(
     dict with the total tokens billed under naive (re-send everything) and
     cached (send the prefix once, replay via cache thereafter) strategies.
     """
+    if turns < 1:
+        raise ValueError("turns must be at least 1")
+    if cached_tokens < 0 or fresh_tokens_per_turn < 0:
+        raise ValueError("token counts must be non-negative")
+
     naive = turns * (cached_tokens + fresh_tokens_per_turn)
     cached = cached_tokens + turns * fresh_tokens_per_turn
     return {
@@ -104,7 +113,7 @@ def estimate_cache_savings(
     }
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover - illustrative console output
     prompt = build_default_prompt(
         project_brief="A small CLI for analyzing JSONL logs. Stack: Python 3.11+, stdlib only.",
         dynamic_context="Current task: add a --since FILTER flag to the report command.",
@@ -113,11 +122,13 @@ if __name__ == "__main__":
     print(f"system blocks: {len(blocks)}")
     for i, b in enumerate(blocks):
         cached = "cached" if b.get("cache_control") else "fresh"
-        print(f"  [{i}] {cached}: {len(b['text'])} chars")
+        text = b["text"]
+        if not isinstance(text, str):
+            raise TypeError("system block text must be a string")
+        print(f"  [{i}] {cached}: {len(text)} chars")
     print()
-    print("Note: this demo prefix is far below the per-model cache threshold")
-    print("(roughly 4,096 tokens for Opus 4.7). The shape is correct; in")
-    print("real use the prefix needs to be large enough to actually cache.")
+    print("Note: this demo prefix may be below the selected model's cache threshold.")
+    print("Check the current prompt-caching documentation for model-specific limits.")
 
     print()
     print("Cache savings illustration:")

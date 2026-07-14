@@ -26,7 +26,6 @@ from time import time
 
 import pytest
 
-
 _FILE_LINE_RE = re.compile(r"^(?P<path>[A-Za-z0-9_./\\-]+\.py):(?P<line>\d+)", re.M)
 
 
@@ -68,38 +67,46 @@ def _short_summary(text: str, max_chars: int = 240) -> str:
 class JsonlPlugin:
     def __init__(self, out_path: Path | None):
         self.out_path = out_path
-        self.records: list[dict] = []
+        self.records_by_nodeid: dict[str, dict] = {}
         self.start = time()
 
     def pytest_runtest_logreport(self, report):
-        if report.when != "call":
-            return
-        record = {
-            "nodeid": report.nodeid,
-            "outcome": report.outcome,
-            "duration_ms": int(report.duration * 1000),
-        }
+        record = self.records_by_nodeid.setdefault(
+            report.nodeid,
+            {
+                "nodeid": report.nodeid,
+                "outcome": "passed",
+                "duration_ms": 0,
+            },
+        )
+        record["duration_ms"] += int(report.duration * 1000)
+
         if report.failed:
+            record["outcome"] = "failed"
             text = str(report.longrepr) if report.longrepr else ""
             record["failure"] = {
+                "phase": report.when,
                 "summary": _short_summary(text),
                 "citation": _first_citation(text),
                 "tail": text.splitlines()[-12:] if text else [],
             }
-        self.records.append(record)
+        elif report.skipped and record["outcome"] != "failed":
+            record["outcome"] = "skipped"
 
     def pytest_sessionfinish(self, exitstatus):
+        records = list(self.records_by_nodeid.values())
         summary = {
             "kind": "summary",
             "duration_ms": int((time() - self.start) * 1000),
-            "total": len(self.records),
-            "passed": sum(1 for r in self.records if r["outcome"] == "passed"),
-            "failed": sum(1 for r in self.records if r["outcome"] == "failed"),
-            "skipped": sum(1 for r in self.records if r["outcome"] == "skipped"),
+            "total": len(records),
+            "passed": sum(1 for r in records if r["outcome"] == "passed"),
+            "failed": sum(1 for r in records if r["outcome"] == "failed"),
+            "skipped": sum(1 for r in records if r["outcome"] == "skipped"),
             "exit_status": exitstatus,
         }
-        body = "\n".join(json.dumps(r) for r in self.records + [summary])
+        body = "\n".join(json.dumps(r) for r in [*records, summary])
         if self.out_path:
+            self.out_path.parent.mkdir(parents=True, exist_ok=True)
             self.out_path.write_text(body + "\n")
         else:
             print(body)

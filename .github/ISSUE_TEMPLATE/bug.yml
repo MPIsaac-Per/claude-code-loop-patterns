@@ -1,0 +1,50 @@
+name: Bug report
+description: Report reproducible incorrect behavior in a sample or tool.
+title: "bug: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include API keys, credentials, private transcripts, or customer data.
+  - type: input
+    id: pattern
+    attributes:
+      label: Pattern or file
+      placeholder: 03-verification-gate/verify.py
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include the smallest command, configuration, and input needed to reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS 15, Python 3.13, Claude Code 2.x
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I removed secrets and private data from this report.
+          required: true
+        - label: I searched existing issues for the same behavior.
+          required: true
