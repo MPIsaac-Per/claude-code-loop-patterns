@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">claude-code-loop-patterns</title>
+  <desc id="desc">MPIsaac Ventures open-source social preview for verifiable Claude Code loop patterns.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4A90A4"/>
+      <stop offset="0.5" stop-color="#5B9BD5"/>
+      <stop offset="1" stop-color="#2E5984"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.79" cy="0.48" r="0.6">
+      <stop offset="0" stop-color="#5B9BD5" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#0D0F12" stop-opacity="0"/>
+    </radialGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1L10 6L1 11Z" fill="#5B9BD5"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="640" fill="#0D0F12"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M929 238A126 126 0 0 1 1136 310" stroke="#5B9BD5" stroke-width="6" marker-end="url(#arrow)"/>
+    <path d="M1126 379A126 126 0 0 1 930 430" stroke="#4A90A4" stroke-width="6" marker-end="url(#arrow)"/>
+    <path d="M878 386A126 126 0 0 1 895 276" stroke="#2E5984" stroke-width="6" marker-end="url(#arrow)"/>
+  </g>
+  <circle cx="1007" cy="334" r="68" fill="#10171E" stroke="url(#accent)" stroke-width="4"/>
+  <path d="M972 335L997 360L1045 308" fill="none" stroke="#78B0E0" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(72 70)" fill="none" stroke="url(#accent)" stroke-linecap="round">
+    <path d="M0 12Q12 4 24 12T48 12T72 12" stroke-width="4"/>
+    <path d="M0 24Q12 16 24 24T48 24T72 24" stroke-width="4" opacity="0.7"/>
+    <path d="M0 36Q12 28 24 36T48 36T72 36" stroke-width="4" opacity="0.45"/>
+  </g>
+  <text x="168" y="103" fill="#F2F5F8" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="27" font-weight="500">MPIsaac Ventures</text>
+  <rect x="1030" y="66" width="178" height="44" rx="22" fill="#12171D" stroke="#2A333D"/>
+  <text x="1119" y="94" text-anchor="middle" fill="#9FAAB7" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="650" letter-spacing="2.4">OPEN SOURCE</text>
+  <path d="M72 142H1208" stroke="#29313A"/>
+  <text x="72" y="218" fill="#6FA7D8" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="4">VERIFIABLE LOOPS</text>
+  <text x="72" y="304" fill="#F2F5F8" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="66" font-weight="650" letter-spacing="-1.5">claude-code-</text>
+  <text x="72" y="378" fill="#F2F5F8" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="66" font-weight="650" letter-spacing="-1.5">loop-patterns</text>
+  <text x="72" y="448" fill="#AAB3BE" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="26" font-weight="400">Evidence gates, structured tools, and Stop hooks.</text>
+  <path d="M72 530H1208" stroke="#29313A"/>
+  <text x="72" y="580" fill="#7F8B98" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20">github.com/MPIsaac-Per</text>
+  <text x="1208" y="580" text-anchor="end" fill="#7F8B98" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20">MIT LICENSE</text>
+</svg>
