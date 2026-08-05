@@ -15,6 +15,7 @@ prompt = build_default_prompt(
 # Pass to the Anthropic SDK as the system parameter:
 import os
 import anthropic
+
 client = anthropic.Anthropic()
 response = client.messages.create(
     model=os.environ["ANTHROPIC_MODEL"],
